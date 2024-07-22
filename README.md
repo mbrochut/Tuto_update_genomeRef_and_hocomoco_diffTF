@@ -2,17 +2,17 @@
 
 ## DATA and tools used
 
-- Genome assembly used: **mm39** found on ENSEMBL website: [Mus_musculus.GRCm39.dna_sm.toplevel](https://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna_sm.toplevel.fa.gz). For this tutorial, only the chromosome 1 will be used but you can download the full genome on ENSEMBL website.
+- Genome assembly used: **mm39** found on ENSEMBL website: [Mus_musculus.GRCm39.dna_sm.toplevel](https://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna_sm.toplevel.fa.gz). For this tutorial, only chromosome 1 will be used, but you can download the full genome on the ENSEMBL website.
 
-- HOCOMOCOv12 logodds matrix. Database of TFs in mouse or Human , updated in 2024. Used by PWMScan
+- HOCOMOCOv12 logodds matrix. Database of TFs in mouse or human, updated in 2024. Used by PWMScan.
 
-- PWMScan: to find TFs binding site on mm 39
+- PWMScan: to find TF binding sites on mm39.
 
-This tutorial is only to prepare your data with other genome assembly (here mm39) and new TF databases (hocomocov12). It doesnt cover how to use diffTF or how to generate count files (RNA-Seq) nor Peak files (ATAC-Seq).
+This tutorial is only to prepare your data with another genome assembly (here mm39) and new TF databases (HOCOMOCOv12). It doesn't cover how to use diffTF or how to generate count files (RNA-Seq) nor peak files (ATAC-Seq).
 
 ## Scan of TFBS based on HOCOMOCOv12
 
-To use diffTF, you need the localisation of each potential binding site of your TFs of interest. They are bed file with the genomic coordinate, a score and the strand position (backward/forward). For more information, see the doc of [diffTF](https://difftf.readthedocs.io/en/latest/chapter2.html#input) on TFBS (transcription factor binding site). To create such file you will need the motif of each TF, i.e, a matrix of probability for the 4 nucleotides (MEME format) and a scanner. For that, I have used PWMScan
+To use diffTF, you need the localization of each potential binding site of your TFs of interest. These are bed files with the genomic coordinates, a score, and the strand position (backward/forward). For more information, see the documentation of [diffTF](https://difftf.readthedocs.io/en/latest/chapter2.html#input) on TFBS (transcription factor binding site). To create such a file, you will need the motif of each TF, i.e., a matrix of probability for the 4 nucleotides (MEME format) and a scanner: PWMScan
 
 ### Why using PWMScan?
 
@@ -65,7 +65,7 @@ In comparison, if you want to use FIMO you should wait more than 40 days for the
 ```
 
 #### NOTE:
-There is 1443 unique matrix of probabilty from Hocomocov12 database. There is human and mouse TFs. To filter the chosen one you can found all the informations needed on the HOCOMOCO website. The filtering of wanted TFs is let to your conveniance with any tool that you want (Python/R/bash/...). Also, for some TFs, there exist multiple possible motifs for the same.
+There is 1443 unique matrix of probabilty from Hocomocov12 database. There is human and mouse TFs. To filter the chosen one you can found all the informations needed on the HOCOMOCO website. The filtering of wanted TFs is let to your conveniance with any tool that you want (Python/R/bash/...). Also, for some TFs, there exist multiple possible motifs for the same. As an example, if you want to use only the primary motif for mouse, you would end up with 720 different TFs.
 
 ### Use PWM Scan
 
@@ -106,18 +106,18 @@ Here you should have 720 TFBS bed file (if you have previously filter your TF of
 #### NOTE
 - The scan use a p-value threshold, here 0.00001. This can change a lot the number of possible binding site and so the output of diffTF. Check PWMScan documentation and diffTF documentation for more information.
 - PWMScan output will directly be in the good format for diffTF so 3 columns for genomic coordinate, 1 column for the DNA motif, 1 column for the score and 1 column for the strand.
-- You will need to rename the files, see point bellow
+- You will still need to rename the files, see point bellow
 
 ## Prepare the files in the good format for diffTF
 
-Now you should have BED files that contains all the TFBS for each TFs of interest from the HOCOMOCOV12 database.
+Now you should have BED files that contains all the binding site (BS) for each TF of interest from the HOCOMOCO V12 database.
 
 Before using diffTF you still need to refine your BED files, otherwise, the snakemake pipeline will not work. 
 
-1. Rename BED file as followed: TFNAME_TFBS.bed
+1. Rename BED file as followed: NAME_TFBS.bed
 2. map your TF name to ENSEMBL name (for RNA-seq analysis)
-3. Correct chromosome name. This point is only useful if your genome assembly doens't follow the convention to name their chromosome by using "chr" in front the chromosome number.
-4. Remove unwanted chromosome
+3. Correct chromosome name. This point is only useful if your genome assembly doens't follow the convention to name their chromosome by using "chr" in front of the chromosome number.
+4. Remove unwanted chromosome annotation
 
 ### 1. Rename BED files
 to rename the bed files you can again use a bash script to rename all your files or any tools that you want.
@@ -144,26 +144,26 @@ done
 
 ### 2. Mapping TF name to ENSEMBL name
 
-The file is a three column space separate file with SYMBOL (Name) ENSEMBL (ENSM0000X), HOCOID (NAME). I use the tool [g:Profiler](https://biit.cs.ut.ee/gprofiler/convert) to convert the name of my TFs and manual annotation for the few that were not found. There is probably better tool to do so, feel free to do it as you want.
+The file is a three-column, space-separated file with SYMBOL (Name), ENSEMBL (ENSM0000X), and HOCOID (NAME_TFBS). You can use the tool [g:Profiler](https://biit.cs.ut.ee/gprofiler/convert) to convert the names of my TFs and manual annotation for the few that were not found. There are probably better tools to do so, feel free to use any method you prefer.
 
-Be carefull, the HOCOID are the name of your TFBS.bed file that can be completely different from the symbol name! So you need to have all of your TFBS.bed file with one entry in the HOCOID column.
+Be careful, the HOCOID are the names of your TFBS.bed files, which can be completely different from the symbol names! So you need to ensure that all of your TFBS.bed files have one entry in the HOCOID column.
 
 #### TIPS
-you can have a better name coverage with g:profiler by using the name from the json file from [HOCOMOCOv12](https://hocomoco12.autosome.org/downloads_v12) and not the TF name from the bed file.
+you can have a better name coverage with g:profiler by using the name from the json file from [HOCOMOCOv12](https://hocomoco12.autosome.org/downloads_v12) and not the TF names from the bed files.
 
 
 
 ### 3. Chromosome Name
-This is probably the most important part of this tutorial. diffTF work **uniquely** if your genome assembly fasta file use the convention to name the chromosome with "chr" at the beginning!! If, as in this example, your genome assembly begin with the chromosome number without the prefix "chr", you will need to change several files! 
+This is probably the most important part of this tutorial. diffTF works **uniquely** if your genome assembly FASTA file uses the convention to name the chromosomes with "chr" at the beginning!! If, as in this example, your genome assembly begins with the chromosome number without the prefix "chr", you will need to change several files!
 
-Hopefully you will be able to run diffTF even if you have done your alignement with the "bad" convention. You will need to change several file for that
+Hopefully, you will be able to run diffTF even if you have done your alignment with the "bad" convention. You will need to change several files for that:
 
-1. Add chr at the beginning of each line in all TFBS.bed file AND peak annotation
-2. Add chr to your ATAC-Seq BAM file
-3. Add chr to the FASTA file of your genome assembly
+1. Add "chr" at the beginning of each line in all TFBS.bed files AND peak annotation files.
+2. Add "chr" to your ATAC-Seq BAM file.
+3. Add "chr" to the FASTA file of your genome assembly.
 
 
-#### Add chr to TFBS.bed file
+#### 1. Add chr to TFBS.bed file and peak annotation
 
 ```bash
 #!/bin/bash
@@ -184,7 +184,7 @@ done
 ```
 if you have use MACS2 for your peak annotation, an output file .broadpeak or .narrowpeak will be created with a standard bed file for the beginning. this file also need a chr prefix in front of each line. You can use the same script as above (not detail in this tutorial).
 
-#### Add chr to BAM file
+#### 2. Add chr to BAM file
 This solution was found on biostars [here](https://www.biostars.org/p/13462/)
 ```bash
 #!/bin/bash
@@ -211,7 +211,7 @@ done
 
 ```
 
-#### Add chr to FASTA file
+#### 3. Add chr to FASTA file
 
 ```bash
 sed -f pattern.txt < yourGenome.fa > genomeWithChromosome.fa
@@ -244,20 +244,6 @@ s/^>Y/>chrY/
 ```
 #### Note
 You can add more pattern if you are working with more chromosome (here mouse)
-
-### Run the analysis
-Running diff TF is very easy if you use singularity (as recommanded by the authors)! The installation of diffTF and utilisation will not be cover here as the documentation is already well detailed, See [documentation](https://difftf.readthedocs.io/en/latest/index.html)
-
-The thing that you will need to update with your own genome assembly and new TFBS in addition to your sample data (see documentation) are listed here:
-
-- In the confiFile.json
-    1. refGenome_fasta: path/to/your/genomeAssembly.fa
-    2. dir_TFBS: path/to/your/TFBS.bed 
-    3. HOCOMOCO_mapping: path/to/your/translationTable.csv (the SYMBOL/ENSM/HOCOID file)
-1. Use PWMScan, see github
-2. Change name to NAME_TFBS.bed
-3. Add chr in front of every files
-4. create a spreadsheet to HOCOMOCO name and ENS ID and gene Symbol --> use https://biit.cs.ut.ee/gprofiler/convert
 
 ### 4. Filter unwanted genes
 If your genome assembly has other location that standard chromosome like bellow, you will want to remove them in order to run correctly diffTF
@@ -311,3 +297,13 @@ for file in "$directory"/*.bed; do
     fi
 done
 ```
+
+## Run the analysis
+Running diff TF is very easy if you use singularity (as recommanded by the authors)! The installation of diffTF and utilisation will not be cover here as their documentation is already well detailed, See [documentation](https://difftf.readthedocs.io/en/latest/index.html)
+
+The thing that you will need to update with your own genome assembly and new TFBS are listed here:
+
+- In the confiFile.json
+    1. refGenome_fasta: path/to/your/genomeAssembly.fa
+    2. dir_TFBS: path/to/your/TFBS.bed 
+    3. HOCOMOCO_mapping: path/to/your/translationTable.csv (SYMBOL/ENSM/HOCOID)
