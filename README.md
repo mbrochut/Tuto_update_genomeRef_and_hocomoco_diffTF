@@ -120,8 +120,8 @@ Now you should have BED files that contains all the binding site (BS) for each T
 Before using diffTF you still need to refine your BED files, otherwise, the snakemake pipeline will not work. 
 
 1. Rename BED file as followed: NAME_TFBS.bed
-2. map your TF name to ENSEMBL name (for RNA-seq analysis)
-3. Correct chromosome name. This point is only useful if your genome assembly doens't follow the convention to name their chromosome by using "chr" in front of the chromosome number.
+2. Map your TF name to ENSEMBL name in a csv file
+3. Correct chromosome name. This point is only useful if your genome assembly doesn't follow the convention to name their chromosome by using "chr" in front of the chromosome number.
 4. Remove unwanted chromosome annotation
 
 ### 2.1 Rename BED files
