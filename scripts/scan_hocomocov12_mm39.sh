@@ -1,6 +1,6 @@
 !/bin/bash
 directory="../data/matrix_example_to_scan"
-genome="../data/mm39.fa"
+genome="../data/Mus_musculus.GRCm39.dna.chromosome.1.fa"
 
 #check if the target is a directory
 if [ ! -d "$directory" ]; then
