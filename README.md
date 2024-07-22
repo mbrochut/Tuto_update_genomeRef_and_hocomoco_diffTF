@@ -4,13 +4,18 @@
 
 - Genome assembly used: **mm39** found on ENSEMBL website: [Mus_musculus.GRCm39.dna_sm.toplevel](https://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna_sm.toplevel.fa.gz). For this tutorial, only chromosome 1 will be used, but you can download the full genome on the ENSEMBL website.
 
-- HOCOMOCOv12 logodds matrix. Database of TFs in mouse or human, updated in 2024. Used by PWMScan.
+- HOCOMOCOv12 logodds matrix: [hocomocov12_core_matrix_logodds.mat](https://epd.expasy.org/ftp/pwmlib/hocomocov12_core_matrix_logodds.mat). Containing 1443 transcription factor (TF) binding models in mouse and human
 
-- PWMScan: to find TF binding sites on mm39.
+- PWMScan: clone the repo [here](https://gitlab.sib.swiss/EPD/pwmscan)
 
-This tutorial is only to prepare your data with another genome assembly (here mm39) and new TF databases (HOCOMOCOv12). It doesn't cover how to use diffTF or how to generate count files (RNA-Seq) nor peak files (ATAC-Seq).
+This tutorial is only intended to prepare your data with a different genome assembly (here mm39) and new TF databases (HOCOMOCOv12). It doesn't cover how to use diffTF or how to generate count files (RNA-Seq) or peak files (ATAC-Seq).
 
-## Scan of TFBS based on HOCOMOCOv12
+It consist of two steps:
+
+1. Scan your transcription factor binding site (TFBS)
+2. Prepare the files for diffTF
+
+## 1. Scan of TFBS based on HOCOMOCOv12
 
 To use diffTF, you need the localization of each potential binding site of your TFs of interest. These are bed files with the genomic coordinates, a score, and the strand position (backward/forward). For more information, see the documentation of [diffTF](https://difftf.readthedocs.io/en/latest/chapter2.html#input) on TFBS (transcription factor binding site). To create such a file, you will need the motif of each TF, i.e., a matrix of probability for the 4 nucleotides (MEME format) and a scanner: PWMScan
 
@@ -108,7 +113,7 @@ Here you should have 720 TFBS bed file (if you have previously filter your TF of
 - PWMScan output will directly be in the good format for diffTF so 3 columns for genomic coordinate, 1 column for the DNA motif, 1 column for the score and 1 column for the strand.
 - You will still need to rename the files, see point bellow
 
-## Prepare the files in the good format for diffTF
+## 2. Prepare the files in the good format for diffTF
 
 Now you should have BED files that contains all the binding site (BS) for each TF of interest from the HOCOMOCO V12 database.
 
@@ -119,7 +124,7 @@ Before using diffTF you still need to refine your BED files, otherwise, the snak
 3. Correct chromosome name. This point is only useful if your genome assembly doens't follow the convention to name their chromosome by using "chr" in front of the chromosome number.
 4. Remove unwanted chromosome annotation
 
-### 1. Rename BED files
+### 2.1 Rename BED files
 to rename the bed files you can again use a bash script to rename all your files or any tools that you want.
 
 ```bash
@@ -142,7 +147,7 @@ done
 ```
 
 
-### 2. Mapping TF name to ENSEMBL name
+### 2.2 Mapping TF name to ENSEMBL name
 
 The file is a three-column, space-separated file with SYMBOL (Name), ENSEMBL (ENSM0000X), and HOCOID (NAME_TFBS). You can use the tool [g:Profiler](https://biit.cs.ut.ee/gprofiler/convert) to convert the names of my TFs and manual annotation for the few that were not found. There are probably better tools to do so, feel free to use any method you prefer.
 
@@ -153,7 +158,7 @@ you can have a better name coverage with g:profiler by using the name from the j
 
 
 
-### 3. Chromosome Name
+### 2.3 Chromosome Name
 This is probably the most important part of this tutorial. diffTF works **uniquely** if your genome assembly FASTA file uses the convention to name the chromosomes with "chr" at the beginning!! If, as in this example, your genome assembly begins with the chromosome number without the prefix "chr", you will need to change several files!
 
 Hopefully, you will be able to run diffTF even if you have done your alignment with the "bad" convention. You will need to change several files for that:
@@ -245,7 +250,7 @@ s/^>Y/>chrY/
 #### Note
 You can add more pattern if you are working with more chromosome (here mouse)
 
-### 4. Filter unwanted genes
+### 2.4 Filter unwanted genes
 If your genome assembly has other location that standard chromosome like bellow, you will want to remove them in order to run correctly diffTF
 ```
 JH584299.1	243370	243381	GTGCGTGCGTG	1278	+
