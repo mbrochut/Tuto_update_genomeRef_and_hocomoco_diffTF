@@ -169,7 +169,7 @@ Hopefully, you will be able to run diffTF even if you have done your alignment w
 #!/bin/bash
 
 # Define the directory containing the files
-directory="PWMScan_HOCOMOCOv12"
+directory="../results/PWMScan_hocomocov12"
 
 # Loop through each file in the directory
 for file in "$directory"/*; do
